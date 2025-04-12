@@ -1,8 +1,37 @@
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 
+// Define types for media items
+type VideoItem = {
+  id: number;
+  type: 'video';
+  thumbnail: string;
+  title: string;
+  description: string;
+  videoUrl: string;
+};
+
+type ImageItem = {
+  id: number;
+  type: 'image';
+  src: string;
+  title: string;
+  description: string;
+};
+
+type MediaItem = VideoItem | ImageItem;
+
+// Type guard functions
+function isVideoItem(item: MediaItem): item is VideoItem {
+  return item.type === 'video';
+}
+
+function isImageItem(item: MediaItem): item is ImageItem {
+  return item.type === 'image';
+}
+
 // Sample media data
-const mediaItems = [
+const mediaItems: MediaItem[] = [
   {
     id: 1,
     type: 'video',
@@ -51,7 +80,7 @@ const mediaItems = [
 ];
 
 const MediaGallery = () => {
-  const [selectedItem, setSelectedItem] = useState<typeof mediaItems[0] | null>(null);
+  const [selectedItem, setSelectedItem] = useState<MediaItem | null>(null);
   const [filter, setFilter] = useState<'all' | 'video' | 'image'>('all');
   const sectionRef = useRef<HTMLElement>(null);
 
@@ -129,13 +158,13 @@ const MediaGallery = () => {
             >
               <div className="aspect-video relative">
                 <Image
-                  src={item.type === 'video' ? item.thumbnail : item.src}
+                  src={isVideoItem(item) ? item.thumbnail : item.src}
                   alt={item.title}
                   fill
                   style={{ objectFit: 'cover' }}
                   className="transition-transform duration-700 group-hover:scale-105"
                 />
-                {item.type === 'video' && (
+                {isVideoItem(item) && (
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="w-16 h-16 rounded-full bg-white bg-opacity-80 flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
                       <svg className="w-6 h-6 text-primary" fill="currentColor" viewBox="0 0 24 24">
@@ -158,7 +187,7 @@ const MediaGallery = () => {
           <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4">
             <div className="max-w-4xl w-full bg-white">
               <div className="relative">
-                {selectedItem.type === 'video' ? (
+                {isVideoItem(selectedItem) ? (
                   <div className="aspect-video bg-black flex items-center justify-center">
                     <p className="text-white">Video player would be embedded here</p>
                   </div>
